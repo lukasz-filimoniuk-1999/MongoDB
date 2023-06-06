@@ -11,7 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.FileProviders;
 
-using DBClient.Models;
+using DBClient.Services;
+using DBClient.Data;
+using DBClient.Import;
 
 namespace DBClient
 {
@@ -19,18 +21,28 @@ namespace DBClient
     {
         static IConfigurationRoot configuration;
         static IMongoDatabase db;
+        static IImportService importService;
+        static IMongoDbService mongoService;
 
         static void Main(string[] args)
         {
             SetConfig();
             SetDbConnection();
 
-            var collection = db.GetCollection<Rating>("Rating");
-            var filter = Builders<Rating>.Filter.Empty;
-            var documents = collection.Find(filter).ToList();
-            Console.WriteLine(documents);
+            ConfigureServices();
+
+            // Import danych, zakomentowany jesli już są dane
+            // importService.ImportData();
+
+            // Wywołanie zadania 1
+            mongoService.Exercise1();
+
+            while (true);
         }
-      
+
+        /// <summary>
+        /// Wczytanie pliku konfiguracyjjnego.
+        /// </summary>
         static void SetConfig()
         {
             configuration = new ConfigurationBuilder()
@@ -39,10 +51,24 @@ namespace DBClient
                 .Build();
         }
 
+        /// <summary>
+        /// Ustawienie połączenia z bazą danych MongoDb.
+        /// </summary>
         static void SetDbConnection()
         {
             var client = new MongoClient(configuration["db:connectionString"]);
             db = client.GetDatabase(configuration["db:dbName"]);
         }
+
+        /// <summary>
+        /// Wczytanie serwisów.
+        /// </summary>
+        static void ConfigureServices()
+        {
+            importService = new ImportService(configuration);
+
+            IMongoDbDataProvider mongoDbDataProvider = new MongoDbDataProvider(db);
+            mongoService = new MongoDbService(mongoDbDataProvider);
+        }   
     }
 }
