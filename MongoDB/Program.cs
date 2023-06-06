@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.FileProviders;
 
+using DBClient.Models;
+
 namespace DBClient
 {
     class Program
@@ -23,12 +25,12 @@ namespace DBClient
             SetConfig();
             SetDbConnection();
 
-            var collection = db.GetCollection<BsonDocument>("Rating");
-            var filter = Builders<BsonDocument>.Filter.Empty;
+            var collection = db.GetCollection<Rating>("Rating");
+            var filter = Builders<Rating>.Filter.Empty;
             var documents = collection.Find(filter).ToList();
             Console.WriteLine(documents);
         }
-
+      
         static void SetConfig()
         {
             configuration = new ConfigurationBuilder()
