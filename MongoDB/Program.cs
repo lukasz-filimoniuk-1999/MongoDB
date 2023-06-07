@@ -32,10 +32,12 @@ namespace DBClient
             ConfigureServices();
 
             // Import danych, zakomentowany jesli już są dane
-            // importService.ImportData();
+            //importService.ImportData();
 
             // Wywołanie zadania 1
             mongoService.Exercise1();
+
+
 
             while (true);
         }

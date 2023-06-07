@@ -34,8 +34,14 @@ namespace DBClient.Services
             var nameCount = nameCollection.Find(Builders<Name>.Filter.Empty).CountDocuments();
             var titleCount = titleCollection.Find(Builders<Title>.Filter.Empty).CountDocuments();
 
+            Console.WriteLine("#Zadanie 1.");
             string result = $"Rating: {ratingCount}, Name: {nameCount}, Title: {titleCount}";
-            Console.WriteLine(result);
+            Console.WriteLine(result + "\n");
+        }
+
+        public void Exercise2()
+        {
+
         }
     }
 }
