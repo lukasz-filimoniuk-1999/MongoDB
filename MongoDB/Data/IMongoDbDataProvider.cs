@@ -32,5 +32,6 @@ namespace DBClient.Data
         /// </summary>
         /// <returns>Kolekcja dokumentów</returns>
         IMongoCollection<Name> GetNameCollection();
+
     }
 }

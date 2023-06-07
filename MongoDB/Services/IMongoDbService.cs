@@ -17,7 +17,7 @@ namespace DBClient.Services
         /// </summary>
         void Exercise1();
         void Exercise2(int StartYearParam, string CategoryParam, int runtimeMinutesParam1, int runtimeMinutesParam2);
-        void Exercise3();
+        void Exercise3(int YearParam);
         void Exercise4();
         void Exercise5();
         void Exercise6();

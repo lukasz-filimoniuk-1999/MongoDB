@@ -40,6 +40,39 @@ namespace DBClient
             // Wywołanie zadania 2.
             mongoService.Exercise2(2010, "Romance", 90, 120);
 
+            // Wywołanie zadania 3.
+            mongoService.Exercise3(2000);
+
+            // Wywołanie zadania 4.
+            //mongoService.Exercise4();
+
+            // Wywołanie zadania 5.
+            //mongoService.Exercise5();
+
+            // Wywołanie zadania 6.
+            //mongoService.Exercise6();
+
+            // Wywołanie zadania 7.
+            //mongoService.Exercise7();
+
+            // Wywołanie zadania 8.
+            //mongoService.Exercise8();
+
+            // Wywołanie zadania 9.
+            //mongoService.Exercise9();
+
+            // Wywołanie zadania 10.
+            //mongoService.Exercise10();
+
+            // Wywołanie zadania 11.
+            //mongoService.Exercise11();
+
+            // Wywołanie zadania 12.
+            //mongoService.Exercise12();
+
+            // Wywołanie zadania 13.
+            //mongoService.Exercise13();
+
             while (true);
         }
 

@@ -55,20 +55,30 @@ namespace DBClient.Services
                 );
 
 
-            List<Title> TitleDocumentsList = titleCollection.Find(Filters).Limit(5).ToList();
-            var titleDocumentCountByFilters = titleCollection.Find(Filters).CountDocuments();
+            // Trzeba dodać operację sortowania i wypisania poszczególnych atrybutów dokumentu 
 
+            var titleDocumentCountByFilters = titleCollection.Find(Filters).CountDocuments();
+            List<Title> TitleDocumentsList = titleCollection.Find(Filters).Limit(5).ToList();
+
+
+            Console.WriteLine("Dokumenty spełniające warunki ujęte w zadaniu: \n");
             foreach(var document in TitleDocumentsList)
             {
                 Console.WriteLine(document.ToJson());
             }
 
-            Console.WriteLine("Liczba dokumentów spełniających ten warunek: " + titleDocumentCountByFilters + ". \n");
+            Console.WriteLine("\nLiczba dokumentów spełniających ten warunek: " + titleDocumentCountByFilters + ". \n");
         }
 
-        public void Exercise3()
+        public void Exercise3(int YearParam)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("#Zadanie 3.");
+            var titleCollection = db.GetTitleCollection();
+            var filter = Builders<Title>.Filter.Eq("startYear", YearParam);
+            var TitleCountDocuments = titleCollection.Find(filter).CountDocuments();
+
+            Console.WriteLine("Liczba dokumentów spełniających warunek zadania: " + TitleCountDocuments);
+
         }
 
         public void Exercise4()
