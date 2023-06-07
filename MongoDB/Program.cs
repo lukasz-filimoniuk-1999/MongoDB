@@ -34,10 +34,11 @@ namespace DBClient
             // Import danych, zakomentowany jesli już są dane
             //importService.ImportData();
 
-            // Wywołanie zadania 1
+            // Wywołanie zadania 1.
             mongoService.Exercise1();
 
-
+            // Wywołanie zadania 2.
+            mongoService.Exercise2(2010, "Romance", 90, 120);
 
             while (true);
         }

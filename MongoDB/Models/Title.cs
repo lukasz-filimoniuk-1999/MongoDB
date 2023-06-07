@@ -33,7 +33,7 @@ namespace DBClient.Models
         public int? StartYear { get; set; }
 
         [BsonElement("endYear")]
-        public int? EndYear { get; set; }
+        public string EndYear { get; set; }
 
         [BsonElement("runtimeMinutes")]
         public int? RuntimeMinutes { get; set; }

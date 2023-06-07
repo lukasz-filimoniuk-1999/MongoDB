@@ -35,13 +35,17 @@ namespace DBClient.Import
             string databaseName = configuration["db:dbName"];
 
             //Tworzenie procesu mongoimport
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = configuration["import:mongoImportPath"];
-            startInfo.Arguments = $"--db {databaseName} --collection {collectionName} --type tsv --file \"{tsvFilePath}\" --headerline";
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = configuration["import:mongoImportPath"],
+                Arguments = $"--db {databaseName} --collection {collectionName} --type tsv --file \"{tsvFilePath}\" --headerline"
+            };
 
             //Uruchomienie procesu mongoimport
-            Process process = new Process();
-            process.StartInfo = startInfo;
+            Process process = new Process
+            {
+                StartInfo = startInfo
+            };
             process.Start();
             process.WaitForExit();
 
