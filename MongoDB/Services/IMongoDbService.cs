@@ -17,6 +17,7 @@ namespace DBClient.Services
         /// </summary>
         void Exercise1();
 
+        void Exercise2();
         //TODO Dodać resztę metod
     }
 }

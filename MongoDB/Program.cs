@@ -35,7 +35,7 @@ namespace DBClient
             // importService.ImportData();
 
             // Wywołanie zadania 1
-            mongoService.Exercise1();
+            mongoService.Exercise2();
 
             while (true);
         }

@@ -1,5 +1,6 @@
 ﻿using DBClient.Models;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 using System;
@@ -23,21 +24,21 @@ namespace DBClient.Data
         }
 
         /// <inheritdoc/>
-        public IMongoCollection<Name> GetNameCollection()
+        public IMongoCollection<BsonDocument> GetNameCollection()
         {
-            return db.GetCollection<Name>("Name");
+            return db.GetCollection<BsonDocument>("Name");
         }
 
         /// <inheritdoc/>
-        public IMongoCollection<Rating> GetRatingCollection()
+        public IMongoCollection<BsonDocument> GetRatingCollection()
         {
-            return db.GetCollection<Rating>("Rating");
+            return db.GetCollection<BsonDocument>("Rating");
         }
 
         /// <inheritdoc/>
-        public IMongoCollection<Title> GetTitleCollection()
+        public IMongoCollection<BsonDocument> GetTitleCollection()
         {
-            return db.GetCollection<Title>("Title");
+            return db.GetCollection<BsonDocument>("Title");
         }
     }
 }

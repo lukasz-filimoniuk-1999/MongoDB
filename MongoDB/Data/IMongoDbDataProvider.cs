@@ -1,5 +1,5 @@
 ﻿using DBClient.Models;
-
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 using System;
@@ -19,18 +19,18 @@ namespace DBClient.Data
         /// Zwraca kolekcję dokumentów z ocenami filmów.
         /// </summary>
         /// <returns>Kolekcja dokumentów</returns>
-        IMongoCollection<Rating> GetRatingCollection();
+        IMongoCollection<BsonDocument> GetRatingCollection();
 
         /// <summary>
         /// Zwraca kolekcję dokumentów z tytułami.
         /// </summary>
         /// <returns>Kolekcja dokumentów</returns>
-        IMongoCollection<Title> GetTitleCollection();
+        IMongoCollection<BsonDocument> GetTitleCollection();
 
         /// <summary>
         /// Zwraca kolekcję dokumentów z nazwami.
         /// </summary>
         /// <returns>Kolekcja dokumentów</returns>
-        IMongoCollection<Name> GetNameCollection();
+        IMongoCollection<BsonDocument> GetNameCollection();
     }
 }
