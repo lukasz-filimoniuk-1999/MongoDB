@@ -34,8 +34,32 @@ namespace DBClient
             // Import danych, zakomentowany jesli już są dane
             // importService.ImportData();
 
-            // Wywołanie zadania 1
-            mongoService.Exercise2();
+            // Wywołanie zadania 1.
+            //mongoService.Exercise1();
+
+            // Wywołanie zadania 2.
+            //mongoService.Exercise2();
+
+            // Wywołanie zadania 3.
+            //mongoService.Exercise3();
+
+            // Wywołanie zadania 4.
+            //mongoService.Exercise4();
+
+            // Wywołanie zadania 5.
+            //mongoService.Exercise5();
+
+            // Wywołanie zadania 6.
+            //mongoService.Exercise6();
+
+            // Wywołanie zadania 7.
+            mongoService.Exercise7();
+
+            // Wywołanie zadania 8.
+            mongoService.Exercise8();
+
+            // Wywołanie zadania 9.
+            mongoService.Exercise9();
 
             while (true);
         }
