@@ -157,7 +157,7 @@ namespace DBClient.Services
                 // Grupowanie filmów według tytułu i obliczanie maksymalnej średniej oceny
                 new BsonDocument("$group", new BsonDocument
                 {
-                    { "_id", "$Title" },
+                    { "tconst", "$Title" },
                     { "maxAvgRating", new BsonDocument("$max", "$Rating.averageRating") }
                 }),
                 // Wybieranie tylko filmów z maksymalną średnią oceną
