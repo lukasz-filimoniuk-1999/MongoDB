@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using MongoDB.Driver;
-using MongoDB.Bson;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.FileProviders;
 
 using DBClient.Services;
 using DBClient.Data;
@@ -32,7 +25,7 @@ namespace DBClient
             ConfigureServices();
 
             // Import danych, zakomentowany jesli już są dane
-            // importService.ImportData();
+            importService.ImportData();
 
             // Wywołanie zadania 1.
             //mongoService.Exercise1();
@@ -53,13 +46,25 @@ namespace DBClient
             //mongoService.Exercise6();
 
             // Wywołanie zadania 7.
-            mongoService.Exercise7();
+            //mongoService.Exercise7();
 
             // Wywołanie zadania 8.
-            mongoService.Exercise8();
+            //mongoService.Exercise8();
 
             // Wywołanie zadania 9.
-            mongoService.Exercise9();
+            //mongoService.Exercise9();
+
+            // Wywołanie zadania 10.
+            //mongoService.Exercise10();
+
+            // Wywołanie zadania 11.
+            //mongoService.Exercise11();
+
+            //Wywołanie zadania 12.
+            //mongoService.Exercise12();
+
+            //Wywołanie zadania 13.
+            //mongoService.Exercise13();
 
             while (true);
         }

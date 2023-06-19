@@ -4,9 +4,9 @@
     "dbName": "IMDB"
   },
   "import": {
-    "mongoImportPath": "C:\\Users\\filim\\source\\repos\\MongoDB\\MongoImport\\mongoimport.exe",
-    "tsvTitleFilePath": "C:\\Users\\filim\\source\\repos\\MongoDB\\ImportFiles\\titles.tsv",
-    "tsvNameFilePath": "C:\\Users\\filim\\source\\repos\\MongoDB\\ImportFiles\\names.tsv",
-    "tsvRatingFilePath": "C:\\Users\\filim\\source\\repos\\MongoDB\\ImportFiles\\ratings.tsv"
+    "mongoImportPath": "D:\\MongoDB\\bin\\mongoimport.exe",
+    "tsvTitleFilePath": "D:\\MongoDBFiles\\\\titles.tsv",
+    "tsvNameFilePath": "D:\\MongoDBFiles\\names.tsv",
+    "tsvRatingFilePath": "D:\\MongoDBFiles\\ratings.tsv"
   }
 }

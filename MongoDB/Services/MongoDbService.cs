@@ -150,32 +150,42 @@ namespace DBClient.Services
 
         public void Exercise7()
         {
-            var titleCollection = db.GetTitleCollection();
             Console.WriteLine("Zadanie 7#");
-            var pipeline = new[]
+            var titleCollection = db.GetTitleCollection();
+            var ratingCollection = db.GetRatingCollection();
+
+            var pipeline = new BsonDocument[]
             {
-                // Grupowanie filmów według tytułu i obliczanie maksymalnej średniej oceny
-                new BsonDocument("$group", new BsonDocument
+                new BsonDocument("$lookup",
+                new BsonDocument
                 {
-                    { "tconst", "$Title" },
-                    { "maxAvgRating", new BsonDocument("$max", "$Rating.averageRating") }
+                    { "from", "Rating" }, // Kolekcja, z której pobieramy oceny
+                    { "localField", "_id" }, // Pole w kolekcji "Title" do połączenia
+                    { "foreignField", "_id" }, // Pole w kolekcji "Rating" do połączenia
+                    { "as", "ratings" } // Nazwa pola, w którym będą przechowywane wyniki połączenia
                 }),
-                // Wybieranie tylko filmów z maksymalną średnią oceną
-                new BsonDocument("$match", new BsonDocument
+                new BsonDocument("$unwind", "$ratings"), // Rozbicie wyników połączenia na osobne dokumenty
+                new BsonDocument("$group",
+                new BsonDocument
                 {
-                    { "maxAvgRating", 10.0 }
+                    { "_id", "$_id" }, // Grupowanie po identyfikatorze filmu
+                    { "avgRating", new BsonDocument("$avg", "$ratings.averageRating") } // Obliczenie średniej oceny
                 }),
-                // Dodawanie pola "max" o wartości równiej 1
-                new BsonDocument("$addFields", new BsonDocument
+                new BsonDocument("$match",
+                new BsonDocument
                 {
-                    { "max", 1 }
+                    { "averageRating", 10.0 } // Filtrowanie tylko rekordów ze średnią oceną równą 10.0
+                }),
+                new BsonDocument("$addFields",
+                new BsonDocument
+                {
+                    { "max", 1 } // Dodanie pola "max" z wartością równą 1
                 })
             };
 
             var result = titleCollection.Aggregate<BsonDocument>(pipeline).ToList();
-            var updateCountDocuments = result.Count();
-
-            Console.WriteLine(updateCountDocuments);
+            //result.ForEach(d => Console.WriteLine(d));
+            Console.WriteLine("\n");
         }
 
         public void Exercise8()
@@ -203,11 +213,11 @@ namespace DBClient.Services
             var aggregation = titleCollection.Aggregate().Match(Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.Regex("primaryTitle", new BsonRegularExpression("Blade Runner")),
                 Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
-                .Lookup("Rating", "_id", "_id", "ratings")
+                .Lookup("Rating", "tconst", "tconst", "ratings")
                 .Unwind("ratings")
                 .Group(new BsonDocument
                 {
-                    { "_id", "$_id"},
+                    { "tconst", "$tconst"},
                     { "title", new BsonDocument("$first", "$primaryTitle")},
                     {
                         "rating", new BsonDocument("$push", new BsonDocument
@@ -242,6 +252,52 @@ namespace DBClient.Services
                 Console.WriteLine("Nie ma takiego dokumentu w kolekcji Title");
             }
 
+            Console.WriteLine("\n");
+        }
+
+        public void Exercise10()
+        {
+            Console.WriteLine("Zadanie 10#");
+
+            Console.WriteLine("\n");
+        }
+
+        public void Exercise11()
+        {
+            Console.WriteLine("Zadanie 11#");
+
+            Console.WriteLine("\n");
+        }
+
+        public void Exercise12()
+        {
+            Console.WriteLine("Zadanie 12#");
+
+            var titleCollection = db.GetTitleCollection();
+
+            var filter = Builders<BsonDocument>.Filter.And(
+                Builders<BsonDocument>.Filter.Eq("primaryTitle", "Pan Tadeusz"),
+                Builders<BsonDocument>.Filter.Eq("startYear", 1999));
+
+            var update = Builders<BsonDocument>.Update.Set("avgRating", 9.1);
+
+            var options = new UpdateOptions { IsUpsert = true };
+
+            titleCollection.UpdateOne(filter, update, options);
+
+            Console.WriteLine("\n");
+        }
+
+        public void Exercise13()
+        {
+            Console.WriteLine("Zadanie 13#");
+
+            var titleCollection = db.GetTitleCollection();
+            var filter = Builders<BsonDocument>.Filter.Lt("startYear", 1989);
+
+            var result = titleCollection.DeleteMany(filter);
+
+            Console.WriteLine($"Liczba usuniętych dokumentów: {result.DeletedCount}");
             Console.WriteLine("\n");
         }
     }

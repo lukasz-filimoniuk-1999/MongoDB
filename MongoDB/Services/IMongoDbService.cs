@@ -32,6 +32,13 @@ namespace DBClient.Services
         void Exercise8();
 
         void Exercise9();
-        //TODO Dodać resztę metod
+
+        void Exercise10();
+
+        void Exercise11();
+
+        void Exercise12();
+
+        void Exercise13();
     }
 }
