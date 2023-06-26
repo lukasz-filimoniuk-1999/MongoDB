@@ -37,16 +37,16 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise2()
+        public void Exercise2(int startYear, string genres, int gtMinutes, int lteMinutes)
         {
             Console.WriteLine("Zadanie 2#");
             var titleCollection = db.GetTitleCollection();
 
             var limitedResult = titleCollection.Find(Builders<BsonDocument>.Filter.And(
-                          Builders<BsonDocument>.Filter.Eq("startYear", 2010),
-                          Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Romance")),
-                          Builders<BsonDocument>.Filter.Gt("runtimeMinutes", 90),
-                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", 120)))
+                          Builders<BsonDocument>.Filter.Eq("startYear", startYear),
+                          Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression(genres)),
+                          Builders<BsonDocument>.Filter.Gt("runtimeMinutes", gtMinutes),
+                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", lteMinutes)))
                 .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("genres").Include("runtimeMinutes").Exclude("_id"))
                 .Sort(Builders<BsonDocument>.Sort.Ascending("primaryTitle"))
                 .Limit(5)
@@ -54,15 +54,24 @@ namespace DBClient.Services
 
             limitedResult.ForEach(x => Console.WriteLine(x));
             Console.WriteLine("\n");
+
+            var documentCount = titleCollection.CountDocuments(Builders<BsonDocument>.Filter.And(
+                          Builders<BsonDocument>.Filter.Eq("startYear", startYear),
+                          Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression(genres)),
+                          Builders<BsonDocument>.Filter.Gt("runtimeMinutes", gtMinutes),
+                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", lteMinutes)));
+
+            Console.WriteLine("Liczba dokumentów spełniająca warunki: " + documentCount);
+            Console.WriteLine("\n");
         }
 
-        public void Exercise3()
+        public void Exercise3(int startYear)
         {
             Console.WriteLine("Zadanie 3#");
 
             var titleCollection = db.GetTitleCollection();
             var aggregation = titleCollection.Aggregate()
-                                .Match(Builders<BsonDocument>.Filter.Eq("startYear", 2000))  
+                                .Match(Builders<BsonDocument>.Filter.Eq("startYear", startYear))  
                                 .Group(new BsonDocument
                                 {
                                     { "_id", "$titleType" }, 
@@ -81,23 +90,21 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise4()
+        public void Exercise4(int startYearBegin, int startYearEnd, string genres)
         {
             Console.WriteLine("Zadanie 4#");
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
             var filter = Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.In("startYear", new[] { 1999, 2000}),
-                Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Documentary")));
+                Builders<BsonDocument>.Filter.In("startYear", new[] { startYearBegin, startYearEnd}),
+                Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression(genres)));
 
             var documentCount = titleCollection.CountDocuments(filter);
 
             Console.WriteLine("Liczba dokumentów spełniających warunki: " + documentCount + "\n");
 
-            var limitedCollection = titleCollection.Aggregate().Match(Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.In("startYear", new[] { 1999, 2000 }),
-                Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Documentary"))))
+            var limitedCollection = titleCollection.Aggregate().Match(filter)
                 .Lookup("Rating", "tconst", "tconst", "avg_rating")
                 .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("avg_rating.averageRating").Exclude("_id"))
                 .Sort(Builders<BsonDocument>.Sort.Descending("avg_rating.averageRating"))
@@ -108,7 +115,7 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise5()
+        public void Exercise5(string primaryName)
         {
             Console.WriteLine("Zadanie 5#");
             var nameCollection = db.GetNameCollection();
@@ -117,7 +124,7 @@ namespace DBClient.Services
 
             nameCollection.Indexes.CreateOne(indexModel);
 
-            var filter = Builders<BsonDocument>.Filter.Text("Fonda Coppola", new TextSearchOptions { CaseSensitive = true});
+            var filter = Builders<BsonDocument>.Filter.Text(primaryName, new TextSearchOptions { CaseSensitive = true});
 
             var countDocuments = nameCollection.CountDocuments(filter);
 
@@ -194,14 +201,14 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise8()
+        public void Exercise8(string primaryTitle, int startYear)
         {
             Console.WriteLine("Zadanie 8#");
             var titleCollection = db.GetTitleCollection();
 
             var titleInfoDocument = titleCollection.Aggregate().Match(Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Eq("primaryTitle", "The Derby 1895"),
-                Builders<BsonDocument>.Filter.Eq("startYear", 1895)))
+                Builders<BsonDocument>.Filter.Eq("primaryTitle", primaryTitle),
+                Builders<BsonDocument>.Filter.Eq("startYear", startYear)))
                 .Lookup("Rating", "tconst", "tconst", "avg_rating")
                 .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("avg_rating.averageRating").Exclude("_id"))
                 .ToList();
@@ -210,15 +217,15 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise9()
+        public void Exercise9(string primaryTitle, int startYear)
         {
             Console.WriteLine("Zadanie 9#");
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
             var aggregation = titleCollection.Aggregate().Match(Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
-                Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
+                Builders<BsonDocument>.Filter.Eq("primaryTitle", primaryTitle),
+                Builders<BsonDocument>.Filter.Eq("startYear", startYear)))
                 .Lookup("Rating", "tconst", "tconst", "ratings")
                 .Unwind("ratings")
                 .Group(new BsonDocument
@@ -261,13 +268,13 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise10()
+        public void Exercise10(string primaryTitle, int startYear)
         {
             Console.WriteLine("Zadanie 10#");
             var titleCollection = db.GetTitleCollection();
             var result = titleCollection.Find(Builders<BsonDocument>.Filter.And(
-                          Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
-                          Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
+                          Builders<BsonDocument>.Filter.Eq("primaryTitle", primaryTitle),
+                          Builders<BsonDocument>.Filter.Eq("startYear", startYear)))
                           .ToList();
 
             var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
@@ -286,15 +293,16 @@ namespace DBClient.Services
             {
                 Console.WriteLine("Dokument nie został zaktualizowany");
             }
+            Console.WriteLine("\n");
         }
 
-        public void Exercise11()
+        public void Exercise11(string primaryTitle, int startYear)
         {
             Console.WriteLine("Zadanie 11#");
             var titleCollection = db.GetTitleCollection();
             var result = titleCollection.Find(Builders<BsonDocument>.Filter.And(
-                          Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
-                          Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
+                          Builders<BsonDocument>.Filter.Eq("primaryTitle", primaryTitle),
+                          Builders<BsonDocument>.Filter.Eq("startYear", startYear)))
                           .ToList();
 
             var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
@@ -310,9 +318,10 @@ namespace DBClient.Services
             {
                 Console.WriteLine("Dokument nie został zaktualizowany");
             }
+            Console.WriteLine("\n");
         }
 
-        public void Exercise12()
+        public void Exercise12(string primaryTitle, int startYear)
         {
             Console.WriteLine("Zadanie 12#");
 
@@ -331,12 +340,12 @@ namespace DBClient.Services
             Console.WriteLine("\n");
         }
 
-        public void Exercise13()
+        public void Exercise13(int ltStartYear)
         {
             Console.WriteLine("Zadanie 13#");
 
             var titleCollection = db.GetTitleCollection();
-            var filter = Builders<BsonDocument>.Filter.Lt("startYear", 1989);
+            var filter = Builders<BsonDocument>.Filter.Lt("startYear", ltStartYear);
 
             var result = titleCollection.DeleteMany(filter);
 
