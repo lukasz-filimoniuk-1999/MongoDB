@@ -31,40 +31,40 @@ namespace DBClient
             //mongoService.Exercise1();
 
             // Wywołanie zadania 2.
-            //mongoService.Exercise2(2010, "Romance", 90, 120);
+            //mongoService.Exercise2();
 
             // Wywołanie zadania 3.
-            //mongoService.Exercise3(2000);
+            //mongoService.Exercise3();
 
             // Wywołanie zadania 4.
-            //mongoService.Exercise4(1999, 2000, "Documentary");
+            //mongoService.Exercise4();
 
             // Wywołanie zadania 5.
-            //mongoService.Exercise5("Fonda Coppola");
+            //mongoService.Exercise5();
 
             // Wywołanie zadania 6.
             //mongoService.Exercise6();
 
             // Wywołanie zadania 7.
-            mongoService.Exercise7();
+            //mongoService.Exercise7();
 
             // Wywołanie zadania 8.
-            //mongoService.Exercise8("The Derby 1895", 1895);
+            //mongoService.Exercise8();
 
             // Wywołanie zadania 9.
-            //mongoService.Exercise9("Blade Runner", 1982);
+            //mongoService.Exercise9();
 
             // Wywołanie zadania 10.
-            //mongoService.Exercise10("Blade Runner", 1982);
+            //mongoService.Exercise10();
 
             // Wywołanie zadania 11.
-            //mongoService.Exercise11("Blade Runner", 1982);
+            //mongoService.Exercise11();
 
             //Wywołanie zadania 12.
-            //mongoService.Exercise12("Pan Tadeusz", 1999);
+            //mongoService.Exercise12();
 
             //Wywołanie zadania 13.
-            //mongoService.Exercise13(1989);
+            //mongoService.Exercise13();
 
             while (true);
         }
