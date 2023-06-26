@@ -34,7 +34,7 @@ namespace DBClient
             //mongoService.Exercise2();
 
             // Wywołanie zadania 3.
-            mongoService.Exercise3();
+            //mongoService.Exercise3();
 
             // Wywołanie zadania 4.
             //mongoService.Exercise4();
@@ -46,7 +46,7 @@ namespace DBClient
             //mongoService.Exercise6();
 
             // Wywołanie zadania 7.
-            //mongoService.Exercise7();
+            mongoService.Exercise7();
 
             // Wywołanie zadania 8.
             //mongoService.Exercise8();

@@ -160,37 +160,16 @@ namespace DBClient.Services
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
-            var pipeline = new BsonDocument[]
-            {
-                new BsonDocument("$lookup",
-                new BsonDocument
-                {
-                    { "from", "Rating" }, // Kolekcja, z której pobieramy oceny
-                    { "localField", "_id" }, // Pole w kolekcji "Title" do połączenia
-                    { "foreignField", "_id" }, // Pole w kolekcji "Rating" do połączenia
-                    { "as", "ratings" } // Nazwa pola, w którym będą przechowywane wyniki połączenia
-                }),
-                new BsonDocument("$unwind", "$ratings"), // Rozbicie wyników połączenia na osobne dokumenty
-                new BsonDocument("$group",
-                new BsonDocument
-                {
-                    { "_id", "$_id" }, // Grupowanie po identyfikatorze filmu
-                    { "avgRating", new BsonDocument("$avg", "$ratings.averageRating") } // Obliczenie średniej oceny
-                }),
-                new BsonDocument("$match",
-                new BsonDocument
-                {
-                    { "averageRating", 10.0 } // Filtrowanie tylko rekordów ze średnią oceną równą 10.0
-                }),
-                new BsonDocument("$addFields",
-                new BsonDocument
-                {
-                    { "max", 1 } // Dodanie pola "max" z wartością równą 1
-                })
-            };
+            var results = ratingCollection.Find(Builders<BsonDocument>.Filter.Eq("averageRating", 10.0)).ToList();                    
 
-            var result = titleCollection.Aggregate<BsonDocument>(pipeline).ToList();
-            //result.ForEach(d => Console.WriteLine(d));
+            foreach (var result in results)
+            {
+                // Aktualizuj dokument z tablicą ocen
+                var filter = Builders<BsonDocument>.Filter.Eq("tconst", result["tconst"]);
+                var update = Builders<BsonDocument>.Update.Set("max", 1);
+                var updateResult = titleCollection.UpdateOne(filter, update);
+            }
+
             Console.WriteLine("\n");
         }
 
