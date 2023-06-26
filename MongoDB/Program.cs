@@ -25,7 +25,7 @@ namespace DBClient
             ConfigureServices();
 
             // Import danych, zakomentowany jesli już są dane
-            importService.ImportData();
+           // importService.ImportData();
 
             // Wywołanie zadania 1.
             //mongoService.Exercise1();
@@ -34,7 +34,7 @@ namespace DBClient
             //mongoService.Exercise2();
 
             // Wywołanie zadania 3.
-            //mongoService.Exercise3();
+            mongoService.Exercise3();
 
             // Wywołanie zadania 4.
             //mongoService.Exercise4();

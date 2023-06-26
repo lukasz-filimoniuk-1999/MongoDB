@@ -59,19 +59,25 @@ namespace DBClient.Services
         public void Exercise3()
         {
             Console.WriteLine("Zadanie 3#");
+
             var titleCollection = db.GetTitleCollection();
+            var aggregation = titleCollection.Aggregate()
+                                .Match(Builders<BsonDocument>.Filter.Eq("startYear", 2000))  
+                                .Group(new BsonDocument
+                                {
+                                    { "_id", "$titleType" }, 
+                                    { "count", new BsonDocument("$sum", 1) }  
+                                });
 
-            var limitedResult = titleCollection.Find(Builders<BsonDocument>.Filter.And(
-                          Builders<BsonDocument>.Filter.Eq("startYear", 2010),
-                          Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Romance")),
-                          Builders<BsonDocument>.Filter.Gt("runtimeMinutes", 90),
-                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", 120)))
-                .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("genres").Include("runtimeMinutes").Exclude("_id"))
-                .Sort(Builders<BsonDocument>.Sort.Ascending("primaryTitle"))
-                .Limit(5)
-                .ToList();
+            var results = aggregation.ToList();
+            foreach (var result in results)
+            {
+                string titleType = result["_id"].AsString;
+                int count = result["count"].AsInt32;
 
-            limitedResult.ForEach(x => Console.WriteLine(x));
+                Console.WriteLine($"Typ: {titleType}, Liczba filmów: {count}");
+            }
+
             Console.WriteLine("\n");
         }
 
@@ -211,13 +217,13 @@ namespace DBClient.Services
             var ratingCollection = db.GetRatingCollection();
 
             var aggregation = titleCollection.Aggregate().Match(Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Regex("primaryTitle", new BsonRegularExpression("Blade Runner")),
+                Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
                 Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
                 .Lookup("Rating", "tconst", "tconst", "ratings")
                 .Unwind("ratings")
                 .Group(new BsonDocument
                 {
-                    { "tconst", "$tconst"},
+                    { "_id", "$tconst"},
                     { "title", new BsonDocument("$first", "$primaryTitle")},
                     {
                         "rating", new BsonDocument("$push", new BsonDocument
@@ -233,7 +239,7 @@ namespace DBClient.Services
             if (result.Count > 0)
             {
                 // Aktualizuj dokument z tablicą ocen
-                var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
+                var filter = Builders<BsonDocument>.Filter.Eq("tconst", result[0]["_id"]);
                 var update = Builders<BsonDocument>.Update.Set("rating", result[0]["rating"]);
                 var updateResult = titleCollection.UpdateOne(filter, update);
 
@@ -258,15 +264,52 @@ namespace DBClient.Services
         public void Exercise10()
         {
             Console.WriteLine("Zadanie 10#");
+            var titleCollection = db.GetTitleCollection();
+            var result = titleCollection.Find(Builders<BsonDocument>.Filter.And(
+                          Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
+                          Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
+                          .ToList();
 
-            Console.WriteLine("\n");
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
+            var update = Builders<BsonDocument>.Update.Set("rating", result[0]["rating"].AsBsonArray.Add(new BsonDocument { 
+                                                                                                              { "averageRating", 10 }, 
+                                                                                                              { "numVotes", 12345 } 
+                                                                                                                }));
+            var updateResult = titleCollection.UpdateOne(filter, update);
+
+            // Sprawdzenie rezultatu aktualizacji
+            if (updateResult.ModifiedCount > 0)
+            {
+                Console.WriteLine("Dokument został zaktualizowany");
+            }
+            else
+            {
+                Console.WriteLine("Dokument nie został zaktualizowany");
+            }
         }
 
         public void Exercise11()
         {
             Console.WriteLine("Zadanie 11#");
+            var titleCollection = db.GetTitleCollection();
+            var result = titleCollection.Find(Builders<BsonDocument>.Filter.And(
+                          Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
+                          Builders<BsonDocument>.Filter.Eq("startYear", 1982)))
+                          .ToList();
 
-            Console.WriteLine("\n");
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
+            var update = Builders<BsonDocument>.Update.Unset("rating");
+            var updateResult = titleCollection.UpdateOne(filter, update);
+
+            // Sprawdzenie rezultatu aktualizacji
+            if (updateResult.ModifiedCount > 0)
+            {
+                Console.WriteLine("Dokument został zaktualizowany");
+            }
+            else
+            {
+                Console.WriteLine("Dokument nie został zaktualizowany");
+            }
         }
 
         public void Exercise12()
