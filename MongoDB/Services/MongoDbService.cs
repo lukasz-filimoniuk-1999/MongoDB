@@ -46,20 +46,24 @@ namespace DBClient.Services
                           Builders<BsonDocument>.Filter.Eq("startYear", 2010),
                           Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Romance")),
                           Builders<BsonDocument>.Filter.Gt("runtimeMinutes", 90),
-                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", 120)));
+                          Builders<BsonDocument>.Filter.Lte("runtimeMinutes", 120));
 
-            var limitedResult = titleCollection.Find(filter)
-                .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("genres").Include("runtimeMinutes").Exclude("_id"))
-                .Sort(Builders<BsonDocument>.Sort.Ascending("primaryTitle"))
-                .Limit(5)
-                .ToList();
+            var projection = Builders<BsonDocument>.Projection.
+                Include("primaryTitle")
+                .Include("startYear")
+                .Include("genres")
+                .Include("runtimeMinutes")
+                .Exclude("_id");
+
+            var sort = Builders<BsonDocument>.Sort.Ascending("primaryTitle");
+
+            var limitedResult = titleCollection.Find(filter).Project(projection).Sort(sort).Limit(5).ToList();
 
             limitedResult.ForEach(x => Console.WriteLine(x));
+
             Console.WriteLine("\n");
-
-            var documentCount = titleCollection.CountDocuments(filter);
-
-            Console.WriteLine("Liczba dokumentów spełniająca warunki: " + documentCount);
+            var countDocuments = titleCollection.CountDocuments(filter);
+            Console.WriteLine("Liczba dokumentów spełniających warunki: " + countDocuments);
             Console.WriteLine("\n");
         }
 
@@ -68,12 +72,13 @@ namespace DBClient.Services
             Console.WriteLine("Zadanie 3#");
 
             var titleCollection = db.GetTitleCollection();
+            var filter = Builders<BsonDocument>.Filter.Eq("startYear", 2000);
             var aggregation = titleCollection.Aggregate()
-                                .Match(Builders<BsonDocument>.Filter.Eq("startYear", 2000))  
+                                .Match(filter)
                                 .Group(new BsonDocument
                                 {
-                                    { "_id", "$titleType" }, 
-                                    { "count", new BsonDocument("$sum", 1) }  
+                                    { "_id", "$titleType" },
+                                    { "count", new BsonDocument("$sum", 1) }
                                 });
 
             var results = aggregation.ToList();
@@ -95,8 +100,16 @@ namespace DBClient.Services
             var ratingCollection = db.GetRatingCollection();
 
             var filter = Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.In("startYear", new[] { 1999, 2000}),
+                Builders<BsonDocument>.Filter.In("startYear", new[] { 1999, 2000 }),
                 Builders<BsonDocument>.Filter.Regex("genres", new BsonRegularExpression("Documentary")));
+
+            var projection = Builders<BsonDocument>.Projection
+                .Include("primaryTitle")
+                .Include("startYear")
+                .Include("avg_rating.averageRating")
+                .Exclude("_id");
+
+            var sort = Builders<BsonDocument>.Sort.Descending("avg_rating.averageRating");
 
             var documentCount = titleCollection.CountDocuments(filter);
 
@@ -104,8 +117,8 @@ namespace DBClient.Services
 
             var limitedCollection = titleCollection.Aggregate().Match(filter)
                 .Lookup("Rating", "tconst", "tconst", "avg_rating")
-                .Project(Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("avg_rating.averageRating").Exclude("_id"))
-                .Sort(Builders<BsonDocument>.Sort.Descending("avg_rating.averageRating"))
+                .Project(projection)
+                .Sort(sort)
                 .Limit(5)
                 .ToList();
 
@@ -122,7 +135,7 @@ namespace DBClient.Services
 
             nameCollection.Indexes.CreateOne(indexModel);
 
-            var filter = Builders<BsonDocument>.Filter.Text("Fonda Coppola", new TextSearchOptions { CaseSensitive = true});
+            var filter = Builders<BsonDocument>.Filter.Text("Fonda Coppola", new TextSearchOptions { CaseSensitive = true });
 
             var countDocuments = nameCollection.CountDocuments(filter);
 
@@ -165,37 +178,21 @@ namespace DBClient.Services
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
-            var pipeline = new BsonDocument[]
-            {
-                new BsonDocument("$lookup",
-                new BsonDocument
-                {
-                    { "from", "Rating" }, // Kolekcja, z której pobieramy oceny
-                    { "localField", "_id" }, // Pole w kolekcji "Title" do połączenia
-                    { "foreignField", "_id" }, // Pole w kolekcji "Rating" do połączenia
-                    { "as", "ratings" } // Nazwa pola, w którym będą przechowywane wyniki połączenia
-                }),
-                new BsonDocument("$unwind", "$ratings"), // Rozbicie wyników połączenia na osobne dokumenty
-                new BsonDocument("$group",
-                new BsonDocument
-                {
-                    { "_id", "$_id" }, // Grupowanie po identyfikatorze filmu
-                    { "avgRating", new BsonDocument("$avg", "$ratings.averageRating") } // Obliczenie średniej oceny
-                }),
-                new BsonDocument("$match",
-                new BsonDocument
-                {
-                    { "averageRating", 10.0 } // Filtrowanie tylko rekordów ze średnią oceną równą 10.0
-                }),
-                new BsonDocument("$addFields",
-                new BsonDocument
-                {
-                    { "max", 1 } // Dodanie pola "max" z wartością równą 1
-                })
-            };
+            var filter = Builders<BsonDocument>.Filter.Eq("averageRating", 10.0);
+            var results = ratingCollection.Find(filter).ToList();
 
-            var result = titleCollection.Aggregate<BsonDocument>(pipeline).ToList();
-            //result.ForEach(d => Console.WriteLine(d));
+            int updateDocumentsCount = 0;
+            foreach (var result in results)
+            {
+                // Aktualizuj dokument z tablicą ocen
+                int i = 0;
+                var updateFilter = Builders<BsonDocument>.Filter.Eq("tconst", result["tconst"]);
+                var update = Builders<BsonDocument>.Update.Set("max", 1);
+                var updateResult = titleCollection.UpdateOne(updateFilter, update);
+                updateDocumentsCount++;
+            }
+
+            Console.WriteLine("Liczba zaktualizowanych dokumentów: " + updateDocumentsCount);
             Console.WriteLine("\n");
         }
 
@@ -208,7 +205,11 @@ namespace DBClient.Services
                 Builders<BsonDocument>.Filter.Eq("primaryTitle", "The Derby 1895"),
                 Builders<BsonDocument>.Filter.Eq("startYear", 1895));
 
-            var projection = Builders<BsonDocument>.Projection.Include("primaryTitle").Include("startYear").Include("avg_rating.averageRating").Exclude("_id"));
+            var projection = Builders<BsonDocument>.Projection
+                .Include("primaryTitle")
+                .Include("startYear")
+                .Include("avg_rating.averageRating")
+                .Exclude("_id");
 
             var titleInfoDocument = titleCollection.Aggregate().Match(filter)
                 .Lookup("Rating", "tconst", "tconst", "avg_rating")
@@ -225,11 +226,11 @@ namespace DBClient.Services
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
-            var filters = Builders<BsonDocument>.Filter.And(
+            var filter = Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
                 Builders<BsonDocument>.Filter.Eq("startYear", 1982));
 
-            var aggregation = titleCollection.Aggregate().Match(filters)
+            var aggregation = titleCollection.Aggregate().Match(filter)
                 .Lookup("Rating", "tconst", "tconst", "ratings")
                 .Unwind("ratings")
                 .Group(new BsonDocument
@@ -277,16 +278,16 @@ namespace DBClient.Services
             Console.WriteLine("Zadanie 10#");
             var titleCollection = db.GetTitleCollection();
 
-            var filters = Builders<BsonDocument>.Filter.And(
+            var resultFilter = Builders<BsonDocument>.Filter.And(
                           Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
                           Builders<BsonDocument>.Filter.Eq("startYear", 1982));
 
-            var result = titleCollection.Find(filters).ToList();
+            var result = titleCollection.Find(resultFilter).ToList();
 
             var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
-            var update = Builders<BsonDocument>.Update.Set("rating", result[0]["rating"].AsBsonArray.Add(new BsonDocument { 
-                                                                                                              { "averageRating", 10 }, 
-                                                                                                              { "numVotes", 12345 } 
+            var update = Builders<BsonDocument>.Update.Set("rating", result[0]["rating"].AsBsonArray.Add(new BsonDocument {
+                                                                                                              { "averageRating", 10 },
+                                                                                                              { "numVotes", 12345 }
                                                                                                                 }));
             var updateResult = titleCollection.UpdateOne(filter, update);
 
@@ -299,7 +300,6 @@ namespace DBClient.Services
             {
                 Console.WriteLine("Dokument nie został zaktualizowany");
             }
-            Console.WriteLine("\n");
         }
 
         public void Exercise11()
@@ -307,11 +307,11 @@ namespace DBClient.Services
             Console.WriteLine("Zadanie 11#");
             var titleCollection = db.GetTitleCollection();
 
-            var filters = Builders<BsonDocument>.Filter.And(
+            var resultFilter = Builders<BsonDocument>.Filter.And(
                           Builders<BsonDocument>.Filter.Eq("primaryTitle", "Blade Runner"),
                           Builders<BsonDocument>.Filter.Eq("startYear", 1982));
 
-            var result = titleCollection.Find(filters).ToList();
+            var result = titleCollection.Find(resultFilter).ToList();
 
             var filter = Builders<BsonDocument>.Filter.Eq("_id", result[0]["_id"]);
             var update = Builders<BsonDocument>.Update.Unset("rating");
@@ -326,7 +326,6 @@ namespace DBClient.Services
             {
                 Console.WriteLine("Dokument nie został zaktualizowany");
             }
-            Console.WriteLine("\n");
         }
 
         public void Exercise12()
