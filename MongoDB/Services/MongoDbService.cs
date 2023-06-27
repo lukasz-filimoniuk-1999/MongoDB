@@ -185,7 +185,6 @@ namespace DBClient.Services
             foreach (var result in results)
             {
                 // Aktualizuj dokument z tablicą ocen
-                int i = 0;
                 var updateFilter = Builders<BsonDocument>.Filter.Eq("tconst", result["tconst"]);
                 var update = Builders<BsonDocument>.Update.Set("max", 1);
                 var updateResult = titleCollection.UpdateOne(updateFilter, update);

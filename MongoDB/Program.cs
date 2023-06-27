@@ -28,7 +28,7 @@ namespace DBClient
             // importService.ImportData();
 
             // Wywołanie zadania 1.
-            //mongoService.Exercise1();
+            mongoService.Exercise1();
 
             // Wywołanie zadania 2.
             //mongoService.Exercise2();
