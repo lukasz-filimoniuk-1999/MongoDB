@@ -5,7 +5,7 @@
   },
   "import": {
     "mongoImportPath": "D:\\MongoDB\\bin\\mongoimport.exe",
-    "tsvTitleFilePath": "D:\\MongoDBFiles\\\\titles.tsv",
+    "tsvTitleFilePath": "D:\\MongoDBFiles\\titles.tsv",
     "tsvNameFilePath": "D:\\MongoDBFiles\\names.tsv",
     "tsvRatingFilePath": "D:\\MongoDBFiles\\ratings.tsv"
   }

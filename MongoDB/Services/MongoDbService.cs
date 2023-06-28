@@ -111,10 +111,11 @@ namespace DBClient.Services
 
             var sort = Builders<BsonDocument>.Sort.Descending("avg_rating.averageRating");
 
+            // Zliczanie dokumentów spełniających warunek zadania
             var documentCount = titleCollection.CountDocuments(filter);
-
             Console.WriteLine("Liczba dokumentów spełniających warunki: " + documentCount + "\n");
 
+            // Polecenie wypisujące pierwsze 5 pierwszych dokumentów
             var limitedCollection = titleCollection.Aggregate().Match(filter)
                 .Lookup("Rating", "tconst", "tconst", "avg_rating")
                 .Project(projection)
@@ -130,15 +131,16 @@ namespace DBClient.Services
         {
             Console.WriteLine("Zadanie 5#");
             var nameCollection = db.GetNameCollection();
+            
+            //Tworzenie indeksu tekstowego dla pola primaryName
             var textIndex = Builders<BsonDocument>.IndexKeys.Text("primaryName");
             var indexModel = new CreateIndexModel<BsonDocument>(textIndex);
-
             nameCollection.Indexes.CreateOne(indexModel);
 
+            //Praktyczne zastosowanie indeksu tekstowego przy zapytaniu
             var filter = Builders<BsonDocument>.Filter.Text("Fonda Coppola", new TextSearchOptions { CaseSensitive = true });
-
+            //Zliczanie liczby dokumentów spełniających warunek
             var countDocuments = nameCollection.CountDocuments(filter);
-
             Console.WriteLine("Liczba dokumentów spełniających wymagania: " + countDocuments);
 
             var projection = Builders<BsonDocument>.Projection
@@ -146,6 +148,7 @@ namespace DBClient.Services
                 .Include("primaryProfession")
                 .Exclude("_id");
 
+            //Wypisanie 5 pierwszych dokumentów spełniających warunek
             var result = nameCollection.Find(filter).Project(projection).Limit(5).ToList();
             result.ForEach(d => Console.WriteLine(d));
             Console.WriteLine("\n");
@@ -178,20 +181,19 @@ namespace DBClient.Services
             var titleCollection = db.GetTitleCollection();
             var ratingCollection = db.GetRatingCollection();
 
-            var filter = Builders<BsonDocument>.Filter.Eq("averageRating", 10.0);
-            var results = ratingCollection.Find(filter).ToList();
+            var results = ratingCollection.Find(Builders<BsonDocument>.Filter.Eq("averageRating", 10.0)).ToList();
 
             int updateDocumentsCount = 0;
             foreach (var result in results)
             {
-                // Aktualizuj dokument z tablicą ocen
-                var updateFilter = Builders<BsonDocument>.Filter.Eq("tconst", result["tconst"]);
+                // Aktualizacja dokumentu z tablicą ocen
+                var filter = Builders<BsonDocument>.Filter.Eq("tconst", result["tconst"]);
                 var update = Builders<BsonDocument>.Update.Set("max", 1);
-                var updateResult = titleCollection.UpdateOne(updateFilter, update);
+                var updateResult = titleCollection.UpdateOne(filter, update);
                 updateDocumentsCount++;
             }
 
-            Console.WriteLine("Liczba zaktualizowanych dokumentów: " + updateDocumentsCount);
+            Console.WriteLine($"Liczba zaktualizowanych dokumentów: { updateDocumentsCount }");
             Console.WriteLine("\n");
         }
 
